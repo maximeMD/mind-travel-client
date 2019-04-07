@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 
 import { userService } from '../../_services/user.service';
 import User from '../../_models/user.model';
+import classes from './HomePage.module.css';
+import { Paper, Typography } from '@material-ui/core';
+import * as classnames from 'classnames';
+import io from 'socket.io-client';
 
 interface IHomePageState {
   currentUser: User;
@@ -14,14 +18,18 @@ class HomePage extends Component<any, IHomePageState> {
   state = {
     currentUser: (null as unknown) as User,
     users: (null as unknown) as User[],
-    isLoadingUsers: true
+    isLoadingUsers: true,
   };
 
   componentDidMount() {
     this.setState({
-      currentUser: JSON.parse(localStorage.getItem('user') || '{}')
+      currentUser: JSON.parse(localStorage.getItem('user') || '{}'),
     });
-    userService.getAll().then((users: any) => this.setState({ users }));
+    const socket = io.connect('http://localhost:8080');
+    socket.on('news', data => {
+      console.log(data);
+      socket.emit('my other event', { my: 'data' });
+    });
   }
 
   render() {
